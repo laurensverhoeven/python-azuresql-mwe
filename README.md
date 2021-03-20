@@ -36,6 +36,7 @@ Create the virtualenv, copy the .env file and install the python packages:
     python3 -m pip install -r requirements.txt
 
 Create a .env file with the configuration of your Azure SQL db:
+
     cp .env.example .env
     nano .env
 
