@@ -9,7 +9,7 @@ Minimal working example for testing Azure SQL connectivity in Django.
 Install dependencies:
 
     sudo apt update
-    sudo apt install python3 python3-venv python3-pip
+    sudo apt install -y python3 python3-venv python3-pip
     sudo python3 -m pip install virtualenv virtualenvwrapper
 
 Install the MS SQL odbc driver:
@@ -19,8 +19,8 @@ Install the MS SQL odbc driver:
     sudo bash -c "curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list"
 
     sudo apt-get update
-    sudo ACCEPT_EULA=Y apt-get install msodbcsql17
-    sudo apt-get install unixodbc-dev
+    sudo ACCEPT_EULA=Y apt-get -y install msodbcsql17
+    sudo apt-get install -y unixodbc-dev
 
 Set up environment variables for virtualenv:
 
