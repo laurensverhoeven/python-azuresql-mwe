@@ -1,0 +1,22 @@
+[
+  {
+    "name": "DBNAME",
+    "slotSetting": false,
+    "value": "DBNAME"
+  },
+  {
+    "name": "DBUSER",
+    "slotSetting": false,
+    "value": "USERNAME"
+  },
+  {
+    "name": "DBPASS",
+    "slotSetting": false,
+    "value": "PASSWORD"
+  },
+  {
+    "name": "DBHOST",
+    "slotSetting": false,
+    "value": "domain.com"
+  }
+]

@@ -109,4 +109,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Custom
 .azure/
+app_settings.json
+temp.md
