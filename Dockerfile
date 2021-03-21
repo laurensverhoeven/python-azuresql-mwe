@@ -24,6 +24,16 @@ RUN python3 -m pip install -r requirements.txt
 
 # Set up Django
 EXPOSE 8000
+EXPOSE 2222
+
+# Set up ssh server# ssh
+ENV SSH_PASSWD "root:Docker!"
+RUN apt-get install -y --no-install-recommends dialog
+RUN apt-get install -y --no-install-recommends openssh-server
+RUN echo "$SSH_PASSWD" | chpasswd 
+
+COPY sshd_config /etc/ssh/
+
 
 RUN python3 ./djangoazuresql/manage.py makemigrations
 RUN python3 ./djangoazuresql/manage.py migrate
@@ -36,4 +46,5 @@ RUN chmod u+x /usr/local/bin/init.sh
 
 # Run manage.py when the container launches
 # CMD ["python3", "./djangoazuresql/manage.py runserver"]
+WORKDIR /code/djangoazuresql/
 ENTRYPOINT ["init.sh"]
