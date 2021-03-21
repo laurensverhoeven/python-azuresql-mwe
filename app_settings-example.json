@@ -2,12 +2,12 @@
   {
     "name": "DBNAME",
     "slotSetting": false,
-    "value": "DBNAME"
+    "value": "django-azure-sql-db"
   },
   {
     "name": "DBUSER",
     "slotSetting": false,
-    "value": "USERNAME"
+    "value": "django-admin"
   },
   {
     "name": "DBPASS",
@@ -17,6 +17,6 @@
   {
     "name": "DBHOST",
     "slotSetting": false,
-    "value": "domain.com"
+    "value": "django-azure-sql-server.database.windows.net"
   }
 ]

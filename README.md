@@ -51,23 +51,19 @@ Install the Azure-cli tooling:
 
 Add your proxy's certificate to Azure-cli's cacert bundle (if you are behind a corporate proxy):
 
-    sudo cp /opt/az/lib/python3.6/site-packages/certifi/cacert.pem /opt/az/lib/python3.6/site-packages/certifi/cacert.pem.original
-    echo -e "# My Proxy Proxy Cert\n# Installed on $(date +'%Y-%m-%d')" > /tmp/my_proxy_cert.pem
-    cat "${path_to_proxy_cert}" >> /tmp/my_proxy_cert.pem
-    sudo bash -c "cat /tmp/my_proxy_cert.pem >> /opt/az/lib/python3.6/site-packages/certifi/cacert.pem"
-
-Log in to Azure with az:
-
-    subscription_id="ID_OF_YOUR_SUBSCRIPTION"
-
-    az login
-    az account set -s "${subscription_id}"
+```bash
+sudo cp /opt/az/lib/python3.6/site-packages/certifi/cacert.pem /opt/az/lib/python3.6/site-packages/certifi/cacert.pem.original
+echo -e "# My Proxy Proxy Cert\n# Installed on $(date +'%Y-%m-%d')" > /tmp/my_proxy_cert.pem
+cat "${path_to_proxy_cert}" >> /tmp/my_proxy_cert.pem
+sudo bash -c "cat /tmp/my_proxy_cert.pem >> /opt/az/lib/python3.6/site-packages/certifi/cacert.pem"
+```
 
 
-Create the Azure SQL DB:
-( https://docs.microsoft.com/en-us/azure/azure-sql/database/scripts/create-and-configure-database-cli )
+Configure the names and settings of the resources to be created:
 
 ```bash
+subscription_id="ID_OF_YOUR_SUBSCRIPTION"
+
 resource_group="django-azure-sql"
 azure_sql_server_name="django-azure-sql-server"
 azure_sql_db_name="django-azure-sql-db"
@@ -79,6 +75,25 @@ external_ip=$(curl -s http://whatismyip.akamai.com/)
 startIP="${external_ip}"
 endIP="${external_ip}"
 
+acr_name="djangoazuresqlacr"
+docker_image_tag="python-azuresql-mwe"
+
+web_app_name="django-azure-sql-webapp"
+web_app_plan_name="${web_app_name}-plan"
+```
+
+
+Log in to Azure with az:
+
+```bash
+az login
+az account set -s "${subscription_id}"
+```
+
+Create the Azure SQL DB:
+( https://docs.microsoft.com/en-us/azure/azure-sql/database/scripts/create-and-configure-database-cli )
+
+```bash
 az group create --name "${resource_group}" --location "${location}"
 
 az sql server create --name "${azure_sql_server_name}" --resource-group "${resource_group}" --location "${location}" --admin-user "${azure_sql_admin_user}" --admin-password "${azure_sql_admin_password}"
@@ -91,30 +106,38 @@ az sql db create --resource-group "${resource_group}" --server "${azure_sql_serv
 
 Create a .env file with the configuration of your Azure SQL db:
 
-    cp .env.example .env
-    nano .env
+```bash
+cp .env.example .env
+nano .env
+```
 
 In this file, update the variables to have the correct values:
 
-    AZURE_AZURE_SQL_DATABASE="DBNAME"
-    AZURE_SQL_USER="USERNAME"
-    AZURE_SQL_PASSWORD="PASSWORD"
-    AZURE_SQL_HOST="domain.com"
-    AZURE_SQL_PORT="1433"
-    AZURE_SQL_DRIVER="ODBC Driver 17 for SQL Server"
+```bash
+AZURE_AZURE_SQL_DATABASE="django-azure-sql-db"
+AZURE_SQL_USER="django-admin"
+AZURE_SQL_PASSWORD="PASSWORD"
+AZURE_SQL_HOST="django-azure-sql-server.database.windows.net"
+AZURE_SQL_PORT="1433"
+AZURE_SQL_DRIVER="ODBC Driver 17 for SQL Server"
+```
 
 Initialize the database:
 
-    workon azure-sql-mwe
-    python3 ./djangoazuresql/manage.py makemigrations
-    python3 ./djangoazuresql/manage.py migrate
+```bash
+workon azure-sql-mwe
+python3 ./djangoazuresql/manage.py makemigrations
+python3 ./djangoazuresql/manage.py migrate
+```
 
 3. Run the application locally
 
 Run the application using the following commands:
 
-    workon azure-sql-mwe
-    python3 ./djangoazuresql/manage.py runserver
+```bash
+workon azure-sql-mwe
+python3 ./djangoazuresql/manage.py runserver
+```
 
 Navigate to http://127.0.0.1:8000
 
@@ -124,13 +147,12 @@ Navigate to http://127.0.0.1:8000
 Build the docker image:
 
 ```bash
-cd python-azuresql-mwe/
 docker build -t python-azuresql-mwe:Dockerfile .
 ```
 
 ### Run
 
-Stop and delete any old containers, if needed:
+Stop and delete any old containers with the same name, if needed:
 
 ```bash
 docker stop python-azuresql-mwe; docker rm python-azuresql-mwe
@@ -145,10 +167,7 @@ docker run -p 8000:8000 --name python-azuresql-mwe python-azuresql-mwe:Dockerfil
 # docker exec -i -t python-azuresql-mwe /bin/bash
 ```
 
-Go to:
-
-    http://127.0.0.1:8000/
-
+Navigate to http://127.0.0.1:8000
 
 
 ### Deploy to Azure App Service
@@ -162,9 +181,6 @@ sudo apt-get install -y jq
 Push the image to Azure Container Registry
 
 ```bash
-acr_name="djangoazuresqlacr"
-docker_image_tag="python-azuresql-mwe"
-
 az acr create --name "${acr_name}" --resource-group "${resource_group}" --sku Basic --admin-enabled true
 
 acr_password="$(az acr credential show --resource-group "${resource_group}" --name "${acr_name}" | jq -r '.passwords | first | .value')"; echo "${acr_password}"
@@ -185,17 +201,16 @@ nano app_settings.json
 
 In this file, update the variables to have the correct values:
 
-    DBNAME="DBNAME"
-    DBUSER="USERNAME"
-    DBPASS="PASSWORD"
-    DBHOST="domain.com"
-
+```bash
+DBNAME="django-azure-sql-db"
+DBUSER="django-admin"
+DBPASS="PASSWORD"
+DBHOST="django-azure-sql-server.database.windows.net"
+```
 
 Configure App Service to deploy the image from the registry
 
 ```bash
-web_app_name="django-azure-sql-webapp"
-web_app_plan_name="${web_app_name}-plan"
 
 az appservice plan create --name "${web_app_plan_name}" \
     --resource-group "${resource_group}" --is-linux

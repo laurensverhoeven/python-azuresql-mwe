@@ -114,3 +114,4 @@ venv.bak/
 .azure/
 app_settings.json
 temp.md
+temp.sh
