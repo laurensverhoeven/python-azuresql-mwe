@@ -49,6 +49,13 @@ Install the Azure-cli tooling:
     sudo apt-get update
     sudo apt-get install -y azure-cli
 
+Add your proxy's certificate to Azure-cli's cacert bundle (if you are behind a corporate proxy):
+
+    sudo cp /opt/az/lib/python3.6/site-packages/certifi/cacert.pem /opt/az/lib/python3.6/site-packages/certifi/cacert.pem.original
+    echo -e "# My Proxy Proxy Cert\n# Installed on $(date +'%Y-%m-%d')" > /tmp/my_proxy_cert.pem
+    cat "${path_to_proxy_cert}" >> /tmp/my_proxy_cert.pem
+    sudo bash -c "cat /tmp/my_proxy_cert.pem >> /opt/az/lib/python3.6/site-packages/certifi/cacert.pem"
+
 Log in to Azure with az:
 
     subscription_id="ID_OF_YOUR_SUBSCRIPTION"
@@ -110,13 +117,6 @@ Navigate to http://127.0.0.1:8000
 
 4. Deploy to Azure
 
-Add your proxy's certificate to Azure-cli's cacert bundle (if you are behind a corporate proxy):
-
-    sudo cp /opt/az/lib/python3.6/site-packages/certifi/cacert.pem /opt/az/lib/python3.6/site-packages/certifi/cacert.pem.original
-    echo -e "# My Proxy Proxy Cert\n# Installed on $(date +'%Y-%m-%d')" > /tmp/my_proxy_cert.pem
-    cat "${path_to_proxy_cert}" >> /tmp/my_proxy_cert.pem
-    sudo bash -c "cat /tmp/my_proxy_cert.pem >> /opt/az/lib/python3.6/site-packages/certifi/cacert.pem"
-
 Create a app_settings.json file with the configuration of your Azure SQL db:
 
     cp app_settings-example.json app_settings.json
@@ -132,7 +132,7 @@ In this file, update the variables to have the correct values:
 Publish the Web App:
     
     resource_group="django-azure-sql"
-    web_app_name="django-azure-sq-webapp"
+    web_app_name="django-azure-sql-webapp"
     location="westeurope"
 
     az webapp up --resource-group "${resource_group}" --sku B1 --name "${web_app_name}" --location "${location}"
@@ -141,5 +141,3 @@ Publish the Web App:
 SSH into the webapp: open https://django-azure-sq-webapp.scm.azurewebsites.net/webssh/host or do:
 
     az webapp ssh 
-
-
